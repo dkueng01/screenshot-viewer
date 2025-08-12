@@ -578,82 +578,84 @@ export default function ScreenshotViewer() {
         </div>
 
         {!image ? (
-          <div
-            className={`
-              relative border-2 border-dashed rounded-2xl p-12 text-center
-              transition-all duration-200 cursor-pointer
-              ${isDragging
-                ? "border-blue-400 bg-blue-50 scale-[1.02]"
-                : "border-slate-300 bg-white hover:border-slate-400 hover:bg-slate-50"
-              }
-            `}
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onClick={() => fileInputRef.current?.click()}
-          >
-            {isLoading ? (
-              <div className="flex flex-col items-center gap-4">
-                <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-                <p className="text-slate-600">Loading your screenshot...</p>
-              </div>
-            ) : (
-              <>
-                <div className="mb-6">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-slate-100 rounded-full flex items-center justify-center">
-                    <Upload className="w-8 h-8 text-slate-400" />
+          <>
+            <div
+              className={`
+                relative border-2 border-dashed rounded-2xl p-12 text-center
+                transition-all duration-200 cursor-pointer
+                ${isDragging
+                  ? "border-blue-400 bg-blue-50 scale-[1.02]"
+                  : "border-slate-300 bg-white hover:border-slate-400 hover:bg-slate-50"
+                }
+              `}
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              {isLoading ? (
+                <div className="flex flex-col items-center gap-4">
+                  <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                  <p className="text-slate-600">Loading your screenshot...</p>
+                </div>
+              ) : (
+                <>
+                  <div className="mb-6">
+                    <div className="w-16 h-16 mx-auto mb-4 bg-slate-100 rounded-full flex items-center justify-center">
+                      <Upload className="w-8 h-8 text-slate-400" />
+                    </div>
+                    <h2 className="text-xl font-semibold text-slate-700 mb-2">
+                      Ready for your screenshot
+                    </h2>
+                    <p className="text-slate-500 mb-6">
+                      Simply press{" "}
+                      <kbd className="px-2 py-1 bg-slate-200 rounded text-sm font-mono">
+                        Ctrl+V
+                      </kbd>{" "}
+                      to paste from clipboard
+                    </p>
                   </div>
-                  <h2 className="text-xl font-semibold text-slate-700 mb-2">
-                    Ready for your screenshot
-                  </h2>
-                  <p className="text-slate-500 mb-6">
-                    Simply press{" "}
-                    <kbd className="px-2 py-1 bg-slate-200 rounded text-sm font-mono">
-                      Ctrl+V
-                    </kbd>{" "}
-                    to paste from clipboard
-                  </p>
-                </div>
 
-                <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-                  <Button
-                    variant="outline"
-                    className="flex items-center gap-2"
-                    disabled={isLoading}
-                  >
-                    <Upload className="w-4 h-4" />
-                    Choose file or click anywhere
-                  </Button>
-                  <span className="text-slate-400 text-sm">
-                    Drag & drop also works
-                  </span>
-                </div>
-
-                {history.length > 0 && (
-                  <div className="mt-6">
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
                     <Button
-                      onClick={() => setShowHistory(true)}
-                      variant="ghost"
-                      className="flex items-center gap-2 text-slate-600"
+                      variant="outline"
+                      className="flex items-center gap-2"
+                      disabled={isLoading}
                     >
-                      <History className="w-4 h-4" />
-                      View Recent ({history.length})
+                      <Upload className="w-4 h-4" />
+                      Choose file or click anywhere
                     </Button>
+                    <span className="text-slate-400 text-sm">
+                      Drag & drop also works
+                    </span>
                   </div>
-                )}
-              </>
-            )}
+                </>
+              )}
 
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleFileSelect}
-              className="hidden"
-              aria-label="Upload image file"
-            />
-          </div>
-        ) : (
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileSelect}
+                className="hidden"
+                aria-label="Upload image file"
+              />
+            </div>
+
+            {history.length > 0 && (
+              <div className="mt-6 text-center">
+                <Button
+                  onClick={() => setShowHistory(true)}
+                  variant="ghost"
+                  className="flex items-center gap-2 text-slate-600 mx-auto"
+                >
+                  <History className="w-4 h-4" />
+                  View Recent ({history.length})
+                </Button>
+              </div>
+            )}
+          </>
+) : (
           <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
             <div className="flex items-center justify-between p-4 border-b border-slate-200 bg-slate-50">
               <div className="flex items-center gap-2">
