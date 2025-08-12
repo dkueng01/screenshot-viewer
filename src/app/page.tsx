@@ -2,6 +2,7 @@
 
 import type React from "react"
 import { useState, useCallback, useRef, useEffect } from "react"
+import Image from "next/image"
 import {
   Upload,
   Copy,
@@ -13,12 +14,21 @@ import {
   X,
   ZoomIn,
   ZoomOut,
-  RotateCw
+  RotateCw,
+  History,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import Image from "next/image"
 
 type NotificationType = "success" | "error" | null
+
+interface HistoryItem {
+  id: string
+  dataUrl: string
+  timestamp: Date
+  name: string
+}
 
 export default function ScreenshotViewer() {
   const [image, setImage] = useState<string | null>(null)
@@ -28,6 +38,9 @@ export default function ScreenshotViewer() {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [zoom, setZoom] = useState(1)
   const [rotation, setRotation] = useState(0)
+  const [showHistory, setShowHistory] = useState(false)
+  const [history, setHistory] = useState<HistoryItem[]>([])
+  const [currentHistoryIndex, setCurrentHistoryIndex] = useState(-1)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const showNotification = useCallback((type: NotificationType) => {
@@ -36,6 +49,42 @@ export default function ScreenshotViewer() {
       setTimeout(() => setNotification(null), 2000)
     }
   }, [])
+
+  const addToHistory = useCallback((dataUrl: string, fileName?: string) => {
+    const newItem: HistoryItem = {
+      id: Date.now().toString(),
+      dataUrl,
+      timestamp: new Date(),
+      name: fileName || `Screenshot ${new Date().toLocaleTimeString()}`
+    }
+
+    setHistory(prev => {
+      const updated = [newItem, ...prev.filter(item => item.dataUrl !== dataUrl)]
+      return updated.slice(0, 5)
+    })
+    setCurrentHistoryIndex(0)
+  }, [])
+
+  const loadFromHistory = useCallback((item: HistoryItem, index: number) => {
+    setImage(item.dataUrl)
+    setCurrentHistoryIndex(index)
+    setShowHistory(false)
+    setZoom(1)
+    setRotation(0)
+  }, [])
+
+  const navigateHistory = useCallback((direction: 'prev' | 'next') => {
+    if (history.length === 0) return
+
+    let newIndex: number
+    if (direction === 'prev') {
+      newIndex = currentHistoryIndex < history.length - 1 ? currentHistoryIndex + 1 : 0
+    } else {
+      newIndex = currentHistoryIndex > 0 ? currentHistoryIndex - 1 : history.length - 1
+    }
+
+    loadFromHistory(history[newIndex], newIndex)
+  }, [history, currentHistoryIndex, loadFromHistory])
 
   const processImageFile = useCallback((file: File) => {
     if (!file.type.startsWith("image/")) {
@@ -50,6 +99,7 @@ export default function ScreenshotViewer() {
       const result = e.target?.result as string
       if (result) {
         setImage(result)
+        addToHistory(result, file.name)
         showNotification("success")
       }
       setIsLoading(false)
@@ -61,7 +111,7 @@ export default function ScreenshotViewer() {
     }
 
     reader.readAsDataURL(file)
-  }, [showNotification])
+  }, [showNotification, addToHistory])
 
   const handlePaste = useCallback(async (e: ClipboardEvent) => {
     const items = e.clipboardData?.items
@@ -146,6 +196,13 @@ export default function ScreenshotViewer() {
     setIsFullscreen(false)
     setZoom(1)
     setRotation(0)
+    setCurrentHistoryIndex(-1)
+  }, [])
+
+  const clearHistory = useCallback(() => {
+    setHistory([])
+    setCurrentHistoryIndex(-1)
+    setShowHistory(false)
   }, [])
 
   const toggleFullscreen = useCallback(() => {
@@ -204,6 +261,14 @@ export default function ScreenshotViewer() {
             e.preventDefault()
             resetView()
             break
+          case "ArrowLeft":
+            e.preventDefault()
+            navigateHistory('prev')
+            break
+          case "ArrowRight":
+            e.preventDefault()
+            navigateHistory('next')
+            break
         }
         return
       }
@@ -215,6 +280,15 @@ export default function ScreenshotViewer() {
       } else if (e.key === "f") {
         e.preventDefault()
         toggleFullscreen()
+      } else if (e.key === "h") {
+        e.preventDefault()
+        setShowHistory(prev => !prev)
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault()
+        navigateHistory('prev')
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault()
+        navigateHistory('next')
       } else if (e.ctrlKey || e.metaKey) {
         switch (e.key) {
           case "c":
@@ -231,9 +305,8 @@ export default function ScreenshotViewer() {
 
     document.addEventListener("keydown", handleKeyDown)
     return () => document.removeEventListener("keydown", handleKeyDown)
-  }, [image, isFullscreen, clearImage, copyToClipboard, downloadImage, toggleFullscreen, handleZoomIn, handleZoomOut, handleRotate, resetView])
+  }, [image, isFullscreen, clearImage, copyToClipboard, downloadImage, toggleFullscreen, handleZoomIn, handleZoomOut, handleRotate, resetView, navigateHistory])
 
-  // Prevent body scroll when fullscreen is active
   useEffect(() => {
     if (isFullscreen) {
       document.body.style.overflow = "hidden"
@@ -269,6 +342,93 @@ export default function ScreenshotViewer() {
         <span className="text-sm font-medium">
           {isSuccess ? "Success!" : "Invalid file type"}
         </span>
+      </div>
+    )
+  }
+
+  const HistoryPanel = () => {
+    if (!showHistory) return null
+
+    return (
+      <div className="fixed inset-0 z-40 bg-black bg-opacity-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
+          <div className="flex items-center justify-between p-4 border-b border-slate-200">
+            <div className="flex items-center gap-2">
+              <History className="w-5 h-5 text-slate-600" />
+              <h2 className="text-lg font-semibold text-slate-800">
+                Recent Screenshots
+              </h2>
+              <span className="text-sm text-slate-500">
+                ({history.length}/5)
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              {history.length > 0 && (
+                <Button
+                  onClick={clearHistory}
+                  variant="ghost"
+                  size="sm"
+                  className="text-red-600 hover:text-red-700"
+                >
+                  Clear All
+                </Button>
+              )}
+              <Button
+                onClick={() => setShowHistory(false)}
+                variant="ghost"
+                size="sm"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+
+          <div className="p-4">
+            {history.length === 0 ? (
+              <div className="text-center py-8 text-slate-500">
+                <History className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                <p>No screenshots in history yet</p>
+                <p className="text-sm mt-1">Upload or paste images to see them here</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-3 max-h-96 overflow-y-auto">
+                {history.map((item, index) => (
+                  <div
+                    key={item.id}
+                    className={`
+                      flex items-center gap-3 p-3 rounded-lg border cursor-pointer
+                      transition-all duration-200 hover:bg-slate-50
+                      ${index === currentHistoryIndex
+                        ? "border-blue-500 bg-blue-50"
+                        : "border-slate-200"
+                      }
+                    `}
+                    onClick={() => loadFromHistory(item, index)}
+                  >
+                    <div className="relative w-16 h-16 bg-slate-100 rounded-lg overflow-hidden flex-shrink-0">
+                      <img
+                        src={item.dataUrl}
+                        alt={item.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-slate-800 truncate">
+                        {item.name}
+                      </p>
+                      <p className="text-sm text-slate-500">
+                        {item.timestamp.toLocaleString()}
+                      </p>
+                    </div>
+                    {index === currentHistoryIndex && (
+                      <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0" />
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     )
   }
@@ -324,6 +484,30 @@ export default function ScreenshotViewer() {
           </div>
         </div>
 
+        {/* Navigation arrows */}
+        {history.length > 1 && (
+          <>
+            <Button
+              onClick={() => navigateHistory('prev')}
+              variant="ghost"
+              size="sm"
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 text-white hover:bg-white hover:bg-opacity-20"
+              title="Previous image (←)"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </Button>
+            <Button
+              onClick={() => navigateHistory('next')}
+              variant="ghost"
+              size="sm"
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 text-white hover:bg-white hover:bg-opacity-20"
+              title="Next image (→)"
+            >
+              <ChevronRight className="w-6 h-6" />
+            </Button>
+          </>
+        )}
+
         {/* Close button */}
         <Button
           onClick={() => setIsFullscreen(false)}
@@ -354,10 +538,11 @@ export default function ScreenshotViewer() {
         <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
           <div className="bg-black bg-opacity-50 rounded-lg px-4 py-2">
             <p className="text-white text-sm text-center">
-              <kbd className="px-1 py-0.5 bg-white bg-opacity-20 rounded text-xs text-black">Esc</kbd> Close •{" "}
-              <kbd className="px-1 py-0.5 bg-white bg-opacity-20 rounded text-xs text-black">+/-</kbd> Zoom •{" "}
-              <kbd className="px-1 py-0.5 bg-white bg-opacity-20 rounded text-xs text-black">R</kbd> Rotate •{" "}
-              <kbd className="px-1 py-0.5 bg-white bg-opacity-20 rounded text-xs text-black">0</kbd> Reset
+              <kbd className="px-1 py-0.5 bg-white bg-opacity-20 rounded text-xs">Esc</kbd> Close •{" "}
+              <kbd className="px-1 py-0.5 bg-white bg-opacity-20 rounded text-xs">←→</kbd> Navigate •{" "}
+              <kbd className="px-1 py-0.5 bg-white bg-opacity-20 rounded text-xs">+/-</kbd> Zoom •{" "}
+              <kbd className="px-1 py-0.5 bg-white bg-opacity-20 rounded text-xs">R</kbd> Rotate •{" "}
+              <kbd className="px-1 py-0.5 bg-white bg-opacity-20 rounded text-xs">0</kbd> Reset
             </p>
           </div>
         </div>
@@ -368,6 +553,7 @@ export default function ScreenshotViewer() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
       <NotificationBadge type={notification} />
+      <HistoryPanel />
       <FullscreenViewer />
 
       <div className="max-w-4xl mx-auto">
@@ -394,7 +580,7 @@ export default function ScreenshotViewer() {
         {!image ? (
           <div
             className={`
-              relative border-2 border-dashed rounded-2xl p-12 text-center 
+              relative border-2 border-dashed rounded-2xl p-12 text-center
               transition-all duration-200 cursor-pointer
               ${isDragging
                 ? "border-blue-400 bg-blue-50 scale-[1.02]"
@@ -442,6 +628,19 @@ export default function ScreenshotViewer() {
                     Drag & drop also works
                   </span>
                 </div>
+
+                {history.length > 0 && (
+                  <div className="mt-6">
+                    <Button
+                      onClick={() => setShowHistory(true)}
+                      variant="ghost"
+                      className="flex items-center gap-2 text-slate-600"
+                    >
+                      <History className="w-4 h-4" />
+                      View Recent ({history.length})
+                    </Button>
+                  </div>
+                )}
               </>
             )}
 
@@ -461,9 +660,46 @@ export default function ScreenshotViewer() {
                 <div className="w-3 h-3 bg-red-400 rounded-full" />
                 <div className="w-3 h-3 bg-yellow-400 rounded-full" />
                 <div className="w-3 h-3 bg-green-400 rounded-full" />
+                {history.length > 1 && (
+                  <span className="ml-2 text-sm text-slate-500">
+                    {currentHistoryIndex + 1} of {history.length}
+                  </span>
+                )}
               </div>
 
               <div className="flex items-center gap-2">
+                {history.length > 1 && (
+                  <>
+                    <Button
+                      onClick={() => navigateHistory('prev')}
+                      variant="ghost"
+                      size="sm"
+                      className="flex items-center gap-2"
+                      title="Previous image (←)"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      onClick={() => navigateHistory('next')}
+                      variant="ghost"
+                      size="sm"
+                      className="flex items-center gap-2"
+                      title="Next image (→)"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </Button>
+                  </>
+                )}
+                <Button
+                  onClick={() => setShowHistory(true)}
+                  variant="ghost"
+                  size="sm"
+                  className="flex items-center gap-2"
+                  title="View history (H)"
+                >
+                  <History className="w-4 h-4" />
+                  History
+                </Button>
                 <Button
                   onClick={toggleFullscreen}
                   variant="ghost"
@@ -525,6 +761,8 @@ export default function ScreenshotViewer() {
           <p>Made for quick screenshot viewing • No data is stored or uploaded</p>
           {image && (
             <p className="mt-2">
+              <kbd className="px-1 py-0.5 bg-slate-200 rounded text-xs">H</kbd> history •{" "}
+              <kbd className="px-1 py-0.5 bg-slate-200 rounded text-xs">←→</kbd> navigate •{" "}
               <kbd className="px-1 py-0.5 bg-slate-200 rounded text-xs">F</kbd> fullscreen •{" "}
               <kbd className="px-1 py-0.5 bg-slate-200 rounded text-xs">Esc</kbd> clear •{" "}
               <kbd className="px-1 py-0.5 bg-slate-200 rounded text-xs">Ctrl+C</kbd> copy •{" "}
