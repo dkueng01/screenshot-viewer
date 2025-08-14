@@ -745,7 +745,7 @@ export default function ScreenshotViewer() {
               </div>
             </div>
 
-            <div className="p-4">
+            <div className="p-4 flex justify-center">
               <img
                 src={image}
                 alt="Uploaded screenshot"
