@@ -445,7 +445,7 @@ export default function ScreenshotViewer() {
               onClick={handleZoomOut}
               variant="ghost"
               size="sm"
-              className="text-white hover:text-neutral-300 hover:bg-white hover:bg-opacity-20"
+              className="text-white hover:text-neutral-500 hover:bg-white hover:bg-opacity-20"
               title="Zoom out (-)"
             >
               <ZoomOut className="w-4 h-4" />
@@ -457,7 +457,7 @@ export default function ScreenshotViewer() {
               onClick={handleZoomIn}
               variant="ghost"
               size="sm"
-              className="text-white hover:text-neutral-300 hover:bg-white hover:bg-opacity-20"
+              className="text-white hover:text-neutral-500 hover:bg-white hover:bg-opacity-20"
               title="Zoom in (+)"
             >
               <ZoomIn className="w-4 h-4" />
@@ -467,7 +467,7 @@ export default function ScreenshotViewer() {
               onClick={handleRotate}
               variant="ghost"
               size="sm"
-              className="text-white hover:text-neutral-300 hover:bg-white hover:bg-opacity-20"
+              className="text-white hover:text-neutral-500 hover:bg-white hover:bg-opacity-20"
               title="Rotate (R)"
             >
               <RotateCw className="w-4 h-4" />
@@ -476,7 +476,7 @@ export default function ScreenshotViewer() {
               onClick={resetView}
               variant="ghost"
               size="sm"
-              className="text-white hover:text-neutral-300 hover:bg-white hover:bg-opacity-20"
+              className="text-white hover:text-neutral-500 hover:bg-white hover:bg-opacity-20"
               title="Reset view (0)"
             >
               Reset
@@ -491,7 +491,7 @@ export default function ScreenshotViewer() {
               onClick={() => navigateHistory('prev')}
               variant="ghost"
               size="sm"
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 text-white hover:text-neutral-300 hover:bg-white hover:bg-opacity-20"
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 text-white hover:text-neutral-500 hover:bg-white hover:bg-opacity-20"
               title="Previous image (←)"
             >
               <ChevronLeft className="w-6 h-6" />
@@ -500,7 +500,7 @@ export default function ScreenshotViewer() {
               onClick={() => navigateHistory('next')}
               variant="ghost"
               size="sm"
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 text-white hover:text-neutral-300 hover:bg-white hover:bg-opacity-20"
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 text-white hover:text-neutral-500 hover:bg-white hover:bg-opacity-20"
               title="Next image (→)"
             >
               <ChevronRight className="w-6 h-6" />
@@ -513,7 +513,7 @@ export default function ScreenshotViewer() {
           onClick={() => setIsFullscreen(false)}
           variant="ghost"
           size="sm"
-          className="absolute top-4 right-4 z-10 text-white hover:bg-white hover:bg-opacity-20"
+          className="absolute top-4 right-4 z-10 text-white hover:text-neutral-500 hover:bg-white hover:bg-opacity-20"
           title="Close fullscreen (Escape)"
         >
           <X className="w-6 h-6" />
