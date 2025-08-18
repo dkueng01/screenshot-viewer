@@ -538,11 +538,11 @@ export default function ScreenshotViewer() {
         <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
           <div className="bg-black bg-opacity-50 rounded-lg px-4 py-2">
             <p className="text-white text-sm text-center">
-              <kbd className="px-1 py-0.5 bg-white bg-opacity-20 rounded text-xs">Esc</kbd> Close •{" "}
-              <kbd className="px-1 py-0.5 bg-white bg-opacity-20 rounded text-xs">←→</kbd> Navigate •{" "}
-              <kbd className="px-1 py-0.5 bg-white bg-opacity-20 rounded text-xs">+/-</kbd> Zoom •{" "}
-              <kbd className="px-1 py-0.5 bg-white bg-opacity-20 rounded text-xs">R</kbd> Rotate •{" "}
-              <kbd className="px-1 py-0.5 bg-white bg-opacity-20 rounded text-xs">0</kbd> Reset
+              <kbd className="px-1 py-0.5 bg-white bg-opacity-20 rounded text-xs text-black">Esc</kbd> Close •{" "}
+              <kbd className="px-1 py-0.5 bg-white bg-opacity-20 rounded text-xs text-black">←→</kbd> Navigate •{" "}
+              <kbd className="px-1 py-0.5 bg-white bg-opacity-20 rounded text-xs text-black">+/-</kbd> Zoom •{" "}
+              <kbd className="px-1 py-0.5 bg-white bg-opacity-20 rounded text-xs text-black">R</kbd> Rotate •{" "}
+              <kbd className="px-1 py-0.5 bg-white bg-opacity-20 rounded text-xs text-black">0</kbd> Reset
             </p>
           </div>
         </div>
