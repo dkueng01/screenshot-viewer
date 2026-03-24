@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { HistoryItem } from "@/hooks/useScreenshotLogic"
-import { Copy, Download, Trash2, Maximize2, History, Pipette, Info } from "lucide-react"
+import Link from "next/link"
+import { Copy, Download, Trash2, Maximize2, History, Pipette, Info, Wand2 } from "lucide-react"
 
 interface ToolbarProps {
   image: HistoryItem
@@ -54,6 +55,13 @@ export const Toolbar = ({ image, historyCount, onToggleHistory, onToggleFullscre
       <div className="flex items-center gap-1 ml-auto">
         <Button onClick={handleColorPick} variant="ghost" size="sm" className="h-8 gap-2" title="Pick Color">
           <Pipette className="w-4 h-4" /> <span className="hidden sm:inline">Color</span>
+        </Button>
+        <div className="w-px h-4 bg-slate-300 mx-1" />
+        <Button variant="ghost" size="sm" asChild className="h-8 gap-2 bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-colors">
+          <Link href={`/beautify?id=${image.id}`}>
+            <Wand2 className="w-4 h-4 text-purple-500" />
+            <span className="hidden sm:inline bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 font-medium">Beautify</span>
+          </Link>
         </Button>
         <div className="w-px h-4 bg-slate-300 mx-1" />
         <Button onClick={onToggleHistory} variant="ghost" size="sm" className="h-8 gap-2">

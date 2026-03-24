@@ -24,7 +24,7 @@ const HistoryDrawer = ({ history, onClose, onSelect, onClear }: { history: Histo
   <div className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm flex justify-end" onClick={onClose}>
     <div className="bg-white w-full max-w-md h-full shadow-2xl overflow-hidden flex flex-col animate-in slide-in-from-right duration-200" onClick={e => e.stopPropagation()}>
       <div className="p-4 border-b flex items-center justify-between bg-slate-50">
-        <h2 className="font-semibold flex items-center gap-2"><HistoryIcon className="w-4 h-4" /> Recent History ({history.length}/10)</h2>
+        <h2 className="font-semibold flex items-center gap-2"><HistoryIcon className="w-4 h-4" /> Recent History ({history.length}/5)</h2>
         <div className="flex gap-2">
           {history.length > 0 && <Button variant="ghost" size="sm" onClick={onClear} className="text-red-500 hover:text-red-600 h-8">Clear</Button>}
           <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8"><X className="w-4 h-4" /></Button>
@@ -147,7 +147,7 @@ export default function ScreenshotViewer() {
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-slate-800 flex items-center justify-center gap-3">
             <Image src="/logo.png" alt="Logo" width={32} height={32} />
-            Screenshot Viewer <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-normal">v2.0</span>
+            Screenshot Viewer <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-normal">v3.0</span>
           </h1>
           <p className="text-slate-500 mt-2">Paste your screenshot instantly • No fuss, just view</p>
         </div>
